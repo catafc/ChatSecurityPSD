@@ -13,7 +13,7 @@ public class Server {
     private static ServerSocket server;
     private static int port = 9876;
     
-    private Map<String, List> availableClients = new HashMap<String, List>();
+    private static Map<String, List> availableClients = new HashMap<String, List>();
     
     public static void main(String args[]) throws Exception{
     	Server server = new Server();
@@ -54,31 +54,34 @@ public class Server {
 			try {
 				ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
-				String clientName = (String) inStream.readObject();
 				int port = (int) inStream.readObject();
+				String clientName = (String) inStream.readObject();
 				System.out.println("clientName " + clientName);
 				if(!availableClients.containsKey(clientName)) {
 					List<String> socketL = new ArrayList<String>();
 					socketL.add(String.valueOf(socket.getInetAddress()).substring(1));
 					socketL.add(String.valueOf(port));
-					
 					availableClients.put(clientName, socketL);
 				}
-				//names.add(clientName);
-				//sockets.add(socket.getInetAddress()); //address of socket
-				
 				outStream.writeObject(availableClients);
-				
-				//outStream.writeObject(names);
-				//outStream.writeObject(sockets);
 				outStream.flush();
-				
 				outStream.close();
 				inStream.close();
-				socket.close();
+				
+				/*while(true) {
+					String clientId = (String) inStream.readObject();
+					if(clientId != null) {
+						System.out.println("updating available clients to client: " + clientName);
+						outStream.writeObject(availableClients);
+					}
+				}*/
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+		
   		}
+		
   	}
+  	
 }
