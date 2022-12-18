@@ -6,8 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/catas/Desktop/ChatSecurity_PSD/jars/bcpkix-jdk18on-171.jar"/>
-	<classpathentry kind="lib" path="C:/Users/catas/Desktop/ChatSecurity_PSD/jars/bcprov-jdk18on-171.jar"/>
-	<classpathentry kind="lib" path="C:/Users/catas/Desktop/ChatSecurity_PSD/jars/bcutil-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="C:/Users/angel/OneDrive/Ambiente de Trabalho/privacidade_v2/ChatSecurityPSD/jars/bcpkix-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="C:/Users/angel/OneDrive/Ambiente de Trabalho/privacidade_v2/ChatSecurityPSD/jars/bcprov-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="C:/Users/angel/OneDrive/Ambiente de Trabalho/privacidade_v2/ChatSecurityPSD/jars/bcutil-jdk18on-171.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

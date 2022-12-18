@@ -66,7 +66,10 @@ public class ClientSender {
 				if (message != null) {
 					nameReceiver = message;
 					add(userId, password, inStream, outStream);
-					sendMessage(userId, password, nameReceiver);
+					String res = sendMessage(userId, password, nameReceiver);
+					if(res != "") {
+						System.out.println(res);
+					}
 				}
 	    	}else if(option.equals("search")) {
 	    		System.out.println("2. type user and keywords to search: <user> <keyword> <keyword>"); //2 alo ola
@@ -126,7 +129,7 @@ public class ClientSender {
 		System.out.println("Available Clients: " + availableClients);
 	}*/
 	
-	private static void sendMessage(int userId, String password, String nameReceiver) throws Exception {
+	private static String sendMessage(int userId, String password, String nameReceiver) throws Exception {
 		//get receiver from Server connections
 		String clientAddress = null;
 		String clientPort = null;
@@ -135,7 +138,7 @@ public class ClientSender {
 			clientAddress = (String) availableClients.get(nameReceiver).get(0);
 			clientPort = (String) availableClients.get(nameReceiver).get(1);
 		} else {
-			System.out.println("This user doesn't exist.");
+			return "This user doesn't exist.";
 		}
 		Socket client_socket = client_connection(clientAddress, Integer.valueOf(clientPort));
 	    ObjectOutputStream client_outStream = new ObjectOutputStream(client_socket.getOutputStream());
@@ -160,6 +163,8 @@ public class ClientSender {
 		//closes
 		client_outStream.close();
 		client_inStream.close();
+		
+		return "";
 	}
 	
 	private static Socket client_connection(String clientAddress, int connect_port) throws Exception {
