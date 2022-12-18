@@ -16,9 +16,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -32,7 +34,7 @@ public class ClientReceiver {
     private static ServerSocket server;
     
     private static Map<String, List> availableClients;
-	private static Map<String, String> msgs = new HashMap<String, String>();
+	private static Map<String, List<String>> msgs = new HashMap<String, List<String>>();
     private static String password;
     private static int userId;
     
@@ -60,25 +62,62 @@ public class ClientReceiver {
         server = new ServerSocket(port);
         while(true){
             System.out.println("\nWaiting for the client request\n");
-
+	    	
             //creating socket and waiting for client connection 
             Socket clientserver_socket = server.accept();
+
             //read from socket
             ObjectInputStream clientserver_ois = new ObjectInputStream(clientserver_socket.getInputStream());
             ObjectOutputStream clientserver_oos = new ObjectOutputStream(clientserver_socket.getOutputStream());
-			
     		Key priv_key = sendPubKey(clientserver_oos);
             receivesMsg(clientserver_oos, clientserver_ois, priv_key);
-            
+
             //close
             clientserver_ois.close();
             clientserver_oos.close();
             //clientserver_socket.close();
-        }
+            Scanner myObj = new Scanner(System.in);
+	    	System.out.println("search for keyword in RECEIVED messages: <search>");
+	    	if(myObj.hasNextLine()) {
+	    		String option = myObj.nextLine();
+	    		if(option.equals("search")) {
+		    		System.out.println("2. type user and keywords to search: <user> <keyword> <keyword>"); //2 alo ola
+		    		String line = myObj.nextLine();
+		    		String nameSender = line.substring(0, 1);
+		    		String keywords = line.substring(2, line.length());
+		    		List<String> found = searchKeyword(nameSender, keywords);
+		    		if(found.isEmpty()) {
+		    			System.out.println("No messages found with keyword(s) '" + keywords + "' for receiver " + nameSender);
+		    		} else {
+		    			System.out.println("Messages with keyword(s) '" + keywords + "' for receiver " + nameSender + ":");
+		    			for(int i = 0; i < found.size(); i++) {
+		    				System.out.println("> " + found.get(i));
+		    			}
+		    		}
+
+	    		}else {
+	    			System.out.println("invalid option, try again");
+	    		}
+	    	}else {
+	    	}
+	    }
 	    //outStream.close();
 	    //inStream.close();
         
     }
+	private static List<String> searchKeyword(String receiver, String keyword) {
+		
+		List<String> messages = msgs.get(receiver);
+		List<String> msgsFound = new ArrayList<String>();
+		
+		for(int i = 0; i < messages.size(); i++) {
+			if(messages.get(i).contains(keyword)) {
+				msgsFound.add(messages.get(i));
+			}
+		}
+		return msgsFound;
+		
+	}
     
     //create client keystore, send client info to server and get available clients
 	private static void add(int userId, String password, ObjectInputStream inStream, ObjectOutputStream outStream, int port) throws Exception {
@@ -172,7 +211,15 @@ public class ClientReceiver {
 		}
 	}
 	
-	private static void save_msg(String sender, String msg) {
-		msgs.put(sender, msg);
+	private static void save_msg(String idReceiver, String msg) {
+		List<String> conv = msgs.get(idReceiver);
+		if(conv == null) {
+			conv = new ArrayList<String>();
+			conv.add(msg);
+			msgs.put(idReceiver, conv);
+		} else {
+			conv.add(msg);
+			msgs.put(idReceiver, conv);
+		}
 	}
 }
