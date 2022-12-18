@@ -3,6 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,9 @@ public class Server {
   //Threads used for comunication with clients
   	class ServerThread extends Thread {
   		private Socket socket = null;
+  		private String clientName;
+  		private int port;
+  		
   		ServerThread(Socket inSoc) {
   			socket = inSoc;
   			System.out.println("server thread for each client");
@@ -54,19 +58,42 @@ public class Server {
 			try {
 				ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
-				int port = (int) inStream.readObject();
-				String clientName = (String) inStream.readObject();
-				System.out.println("clientName " + clientName);
-				if(!availableClients.containsKey(clientName)) {
-					List<String> socketL = new ArrayList<String>();
-					socketL.add(String.valueOf(socket.getInetAddress()).substring(1));
-					socketL.add(String.valueOf(port));
-					availableClients.put(clientName, socketL);
+				boolean cycle = true;
+				while(cycle) {
+					try {
+						
+						port = (int) inStream.readObject();
+						clientName = (String) inStream.readObject();
+
+						System.out.println("clientName " + clientName);
+						if(!availableClients.containsKey(clientName)) {
+							List<String> socketL = new ArrayList<String>();
+							socketL.add(String.valueOf(socket.getInetAddress()).substring(1));
+							socketL.add(String.valueOf(port));
+							availableClients.put(clientName, socketL);
+						}
+						System.out.println("available try: " + availableClients);
+						outStream.writeObject(availableClients);
+						System.out.println("available try AFTER: " + availableClients);
+
+						outStream.flush();
+					}catch(SocketException e) {
+						System.out.println("user " + clientName + " disconnected");
+						System.out.println("Exception: " + e);
+						if(availableClients.get(clientName) != null) {
+							System.out.println("available: " + availableClients);
+							availableClients.remove(clientName);
+							System.out.println("available AFETER: " + availableClients);
+
+							cycle = false;
+						}
+					}
+					
 				}
-				outStream.writeObject(availableClients);
-				outStream.flush();
+				
 				outStream.close();
 				inStream.close();
+				socket.close();
 				
 				/*while(true) {
 					String clientId = (String) inStream.readObject();

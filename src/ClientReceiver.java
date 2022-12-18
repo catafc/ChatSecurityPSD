@@ -59,7 +59,7 @@ public class ClientReceiver {
     	//create socket server 
         server = new ServerSocket(port);
         while(true){
-            System.out.println("Waiting for the client request");
+            System.out.println("\nWaiting for the client request\n");
 
             //creating socket and waiting for client connection 
             Socket clientserver_socket = server.accept();
@@ -90,8 +90,7 @@ public class ClientReceiver {
 		outStream.writeObject(port);
 		outStream.writeObject(String.valueOf(userId)); //name
 		availableClients = (HashMap<String, List>) inStream.readObject();
-		System.out.println("Available Clients: " + availableClients);
-		//availableClientesUpdate(inStream, outStream);
+		//System.out.println("Available Clients: " + availableClients);
 	}
 	/*
 	private static void availableClientesUpdate(ObjectInputStream inStream, ObjectOutputStream outStream) throws Exception, IOException {
@@ -132,7 +131,7 @@ public class ClientReceiver {
 		String msg_integrity = checkMsgIntegrity(msg, hash_msg, keyMAC);
 		outStream.writeObject(msg_integrity);
 		
-		System.out.println("----\nreceived msg: " + new String(msg) + "\nfrom: " + new String(sender_id) + "----\n");
+		System.out.println("user " + new String(sender_id) + " sent: " + new String(msg));
 		System.out.println("^ " + msg_integrity);
 		
 		save_msg(new String(sender_id), new String(msg));

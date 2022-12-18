@@ -29,6 +29,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 public class ClientSender {
 	private static String password;
 	private static int userId;
+	private static int port;
 	private static Map<String, List> availableClients;
 	private static Map<String, String> msgs = new HashMap<String, String>();
 	
@@ -38,7 +39,7 @@ public class ClientSender {
 		password = args[1];
 		String[] clientAddress = args[2].split(":");
 		String address = clientAddress[0];
-		int port = Integer.parseInt(clientAddress[1]);
+		port = Integer.parseInt(clientAddress[1]);
 		
 		//SERVER CONECTION
 	    InetAddress server_host = InetAddress.getLocalHost();
@@ -54,19 +55,25 @@ public class ClientSender {
 	    //RECEIVER CLIENT
 	    String nameReceiver;
 	    Scanner myObj = new Scanner(System.in);
-		System.out.println("receiverName: ");
-		String message = myObj.nextLine();
-		if (message != null) {
-			nameReceiver = message;
-			add(userId, password, inStream, outStream, port);
-			sendMessage(userId, password, nameReceiver);
-		}
-	    outStream.close();
-	    inStream.close();
+	    while(true) {
+			System.out.println("receiverName: ");
+			String message = myObj.nextLine();
+			if (message != null) {
+				nameReceiver = message;
+				
+				System.out.println("ADD -- " + availableClients);
+				add(userId, password, inStream, outStream);
+				System.out.println("ADD AFTER -- " + availableClients);
+
+				sendMessage(userId, password, nameReceiver);
+			}
+	    }
+	    //outStream.close();
+	    //inStream.close();
 	    
 	}
 	//create client keystore, send client info to server and get available clients
-	private static void add(int userId, String password, ObjectInputStream inStream, ObjectOutputStream outStream, int port) throws Exception {
+	private static void add(int userId, String password, ObjectInputStream inStream, ObjectOutputStream outStream) throws Exception {
 		File kfile = new File("keystore." + userId);  //keystore
 		if(!kfile.isFile()) { 
 			System.out.println("creating keystore");
@@ -74,6 +81,8 @@ public class ClientSender {
 		} 
 		outStream.writeObject(port);
 		outStream.writeObject(String.valueOf(userId)); //name
+		if(availableClients != null) availableClients.clear();
+		
 		availableClients = (HashMap<String, List>) inStream.readObject();
 		System.out.println("Available Clients: " + availableClients);
 	}
@@ -95,7 +104,6 @@ public class ClientSender {
 		} else {
 			System.out.println("This user doesn't exist.");
 		}
-		System.out.println("availableClients: " + availableClients);
 		Socket client_socket = client_connection(clientAddress, Integer.valueOf(clientPort));
 	    ObjectOutputStream client_outStream = new ObjectOutputStream(client_socket.getOutputStream());
 		ObjectInputStream client_inStream = new ObjectInputStream(client_socket.getInputStream());
